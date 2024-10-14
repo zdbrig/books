@@ -1,3 +1,4 @@
+from math import ceil
 from flask import render_template, request, redirect, url_for, flash
 from app import app, db
 from app.models import QRCode
@@ -9,6 +10,7 @@ import base64
 # Secret seed for generating QR codes
 SECRET_SEED = "your_secret_seed_here"
 MAX_QR_CODES = 30000
+QR_CODES_PER_PAGE = 6  # Number of QR codes per page
 
 def generate_qr_code(index):
     """Generate a unique QR code based on the index and secret seed."""
@@ -82,3 +84,41 @@ def print_qr(index):
     img_str = base64.b64encode(buffered.getvalue()).decode()
 
     return render_template('print_qr.html', qr_code=qr_code, qr_image=img_str)
+@app.route('/print_qr_page/<int:page>')
+def print_qr_page(page):
+    if page < 1:
+        flash('Invalid page number')
+        return redirect(url_for('admin'))
+
+    start_index = (page - 1) * QR_CODES_PER_PAGE
+    end_index = min(start_index + QR_CODES_PER_PAGE, MAX_QR_CODES)
+
+    qr_codes = []
+    for index in range(start_index, end_index):
+        qr_code = generate_qr_code(index)
+        qr_url = f"https://laboussole.online/register/{qr_code}"
+
+        # Generate QR code image
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(qr_url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        # Convert image to base64 for embedding in HTML
+        buffered = io.BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+
+        qr_codes.append({
+            'code': qr_code,
+            'image': img_str
+        })
+
+    total_pages = ceil(MAX_QR_CODES / QR_CODES_PER_PAGE)
+
+    return render_template('print_qr_page.html', qr_codes=qr_codes, page=page, total_pages=total_pages)
+
+@app.route('/print_all_qr')
+def print_all_qr():
+    total_pages = ceil(MAX_QR_CODES / QR_CODES_PER_PAGE)
+    return render_template('print_all_qr.html', total_pages=total_pages)

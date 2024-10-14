@@ -3,6 +3,10 @@
 {% block content %}
     <h1>Admin Panel</h1>
     <h2>Generate New QR Code</h2>
+
+    <a href="{{ url_for('print_qr_page', page=1) }}">Print QR Codes (Page 1)</a>
+    <a href="{{ url_for('print_all_qr') }}">Print All QR Codes</a>
+
     <p>Total QR Codes: {{ qr_codes|length }} / {{ MAX_QR_CODES }}</p>
     {% if qr_codes|length < MAX_QR_CODES %}
         <a href="{{ url_for('print_qr', index=qr_codes|length) }}">Generate Next QR Code</a>

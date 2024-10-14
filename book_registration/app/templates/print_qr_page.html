@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print QR Codes - Page {{ page }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .qr-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            page-break-after: always;
+        }
+        .qr-code {
+            border: 2px dashed #000;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+        .scissor {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <h1>Print QR Codes - Page {{ page }} of {{ total_pages }}</h1>
+        <a href="{{ url_for('admin') }}">Back to Admin</a>
+    </div>
+
+    <div class="qr-container">
+        {% for qr in qr_codes %}
+        <div class="qr-code">
+            <div class="scissor">✂</div>
+            <img src="data:image/png;base64,{{ qr.image }}" alt="QR Code">
+            <p>{{ qr.code }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print All QR Codes</title>
+</head>
+<body>
+    <h1>Print All QR Codes</h1>
+    <p>Total pages: {{ total_pages }}</p>
+    {% for page in range(1, total_pages + 1) %}
+    <iframe src="{{ url_for('print_qr_page', page=page) }}" style="width: 100%; height: 1000px;"></iframe>
+    {% endfor %}
+</body>
+</html>
