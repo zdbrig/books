@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Admin Panel</h1>
+    <h2>Add New QR Code</h2>
+    <form method="POST">
+        <input type="text" name="qr_code" placeholder="New QR Code" required>
+        <input type="submit" value="Add QR Code">
+    </form>
+
+    <h2>Existing QR Codes</h2>
+    <ul>
+    {% for qr in qr_codes %}
+        <li>{{ qr.code }} - {% if qr.is_registered %}Registered to {{ qr.owner_name }}{% else %}Not Registered{% endif %}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}
