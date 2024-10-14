@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Printable QR Code</h1>
+    <p>QR Code: {{ qr_code }}</p>
+    <img src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
+    <p>URL: https://laboussole.online/register/{{ qr_code }}</p>
+    <button onclick="window.print()">Print QR Code</button>
+{% endblock %}
