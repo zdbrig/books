@@ -241,4 +241,4 @@ EOL
 docker build -t book-registration .
 
 # Run Docker container
-docker run -p 5000:5000 book-registration
+docker run -p 8080:5000 book-registration

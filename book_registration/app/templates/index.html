@@ -1,6 +1,129 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Welcome to Book Registration</h1>
-    <p>Scan your QR code to register your book.</p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Boussole vers l'Intelligence Collective</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background-color: #FFD700;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #000;
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .book-presentation {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .book-image {
+            flex: 1;
+            padding: 20px;
+        }
+        .book-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .book-details {
+            flex: 2;
+            padding: 40px;
+        }
+        h2 {
+            color: #FFD700;
+            margin-top: 0;
+        }
+        p {
+            line-height: 1.6;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #000;
+            color: #FFD700;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: #333;
+        }
+        .features {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        .feature {
+            flex: 1;
+            background-color: #FFD700;
+            margin: 0 10px;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .feature h3 {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>La Boussole vers l'Intelligence Collective</h1>
+    </header>
+    <div class="container">
+        <div class="book-presentation">
+            <div class="book-image">
+                <img src="{{ url_for('static', filename='boussole.png') }}" alt="Couverture du livre La Boussole vers l'Intelligence Collective">
+            </div>
+            <div class="book-details">
+                <h2>Découvrez la puissance de l'intelligence collective</h2>
+                <p>Par Bouzidi Mustapha</p>
+                <p>Plongez dans une exploration fascinante de l'intelligence collective et découvrez comment elle peut transformer votre vie personnelle et professionnelle. Ce livre vous guidera à travers les principes fondamentaux et les applications pratiques de ce concept révolutionnaire.</p>
+                <a href="#" class="cta-button">Acheter maintenant</a>
+            </div>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h3>8 Éditions Exclusives</h3>
+                <p>Chaque édition est limitée et numérotée, offrant un contenu unique et évolutif.</p>
+            </div>
+            <div class="feature">
+                <h3>Communauté Active</h3>
+                <p>Rejoignez une communauté dynamique de lecteurs et d'experts passionnés.</p>
+            </div>
+            <div class="feature">
+                <h3>Guides Pratiques</h3>
+                <p>Accédez à des guides personnels, économiques et sociaux pour une application concrète.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+    
 {% endblock %}
