@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Verify Your Email</h1>
+    <p>We've sent a verification code to your email. Please enter it below to complete your registration.</p>
+    <form method="POST">
+        <input type="text" name="verification_code" placeholder="Verification Code" required>
+        <input type="submit" value="Verify">
+    </form>
+{% endblock %}

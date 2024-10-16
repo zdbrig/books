@@ -1,16 +1,23 @@
 from math import ceil
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, session
 from app import app, db
-from app.models import QRCode
+from app.models import QRCode, User
 import hashlib
 import qrcode
 import io
 import base64
+import random
+import string
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Secret seed for generating QR codes
 SECRET_SEED = "your_secret_seed_here"
 MAX_QR_CODES = 30000
 QR_CODES_PER_PAGE = 6  # Number of QR codes per page
+
+
 
 def generate_qr_code(index):
     """Generate a unique QR code based on the index and secret seed."""
@@ -23,6 +30,72 @@ def is_valid_qr_code(qr_code):
         if generate_qr_code(i) == qr_code:
             return True
     return False
+
+def generate_verification_code():
+    """Generate a random 6-digit verification code."""
+    return ''.join(random.choices(string.digits, k=6))
+
+def send_verification_email(email, verification_code):
+    """Send a verification email to the user."""
+    subject = "Exciting News! Verify Your Email for La Boussole"
+    body = f"""
+    Welcome to La Boussole!
+
+    We're thrilled to have you join our community of book lovers and adventurers. 
+    To complete your registration and start your literary journey with us, please use the following verification code:
+
+    {verification_code}
+
+    Enter this code on our website to confirm your email address and unlock a world of literary wonders.
+
+    Happy reading!
+
+    The La Boussole Team
+    """
+
+    msg = MIMEMultipart()
+    msg['From'] = SMTP_USERNAME
+    msg['To'] = email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.starttls()
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.send_message(msg)
+        
+        
+def send_welcome_email(email, name):
+    """Send a welcome email to the user after successful registration."""
+    subject = "Welcome to La Boussole!"
+    body = f"""
+    Dear {name},
+
+    Welcome to La Boussole! We're thrilled to have you join our community of book lovers and adventurers.
+
+    Your registration is now complete, and you're all set to start your literary journey with us. Here's what you can do next:
+
+    1. Explore our collection of books
+    2. Join reading challenges
+    3. Connect with other book enthusiasts
+
+    If you have any questions or need assistance, don't hesitate to reach out to our support team.
+
+    Happy reading!
+
+    The La Boussole Team
+    """
+
+    msg = MIMEMultipart()
+    msg['From'] = SMTP_USERNAME
+    msg['To'] = email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.starttls()
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.send_message(msg)
 
 @app.route('/')
 def index():
@@ -49,14 +122,61 @@ def register(qr_code):
         return redirect(url_for('index'))
 
     if request.method == 'POST':
-        qr.owner_name = request.form['name']
-        qr.owner_email = request.form['email']
-        qr.is_registered = True
-        db.session.commit()
-        flash('Registration successful')
-        return redirect(url_for('index'))
+        name = request.form['name']
+        email = request.form['email']
+        
+        # Check if the email is already registered
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('This email is already registered')
+            return redirect(url_for('register', qr_code=qr_code))
+
+        # Generate and send verification code
+        verification_code = generate_verification_code()
+        send_verification_email(email, verification_code)
+
+        # Store user data temporarily
+        session['temp_user'] = {
+            'name': name,
+            'email': email,
+            'qr_code': qr_code,
+            'verification_code': verification_code
+        }
+
+        return redirect(url_for('verify_email'))
 
     return render_template('register.html', qr_code=qr_code)
+
+@app.route('/verify_email', methods=['GET', 'POST'])
+def verify_email():
+    if 'temp_user' not in session:
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        user_code = request.form['verification_code']
+        if user_code == session['temp_user']['verification_code']:
+            # Create new user and register QR code
+            new_user = User(name=session['temp_user']['name'], email=session['temp_user']['email'])
+            db.session.add(new_user)
+
+            qr = QRCode.query.filter_by(code=session['temp_user']['qr_code']).first()
+            qr.owner_name = new_user.name
+            qr.owner_email = new_user.email
+            qr.is_registered = True
+
+            db.session.commit()
+
+            # Send welcome email
+            send_welcome_email(new_user.email, new_user.name)
+
+            session.pop('temp_user', None)
+            flash('Registration successful')
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid verification code')
+
+    return render_template('verify_email.html')
+
 
 @app.route('/admin')
 def admin():
